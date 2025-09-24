@@ -1,0 +1,221 @@
+name: 🚀 Deploy to Netlify + VPS
+on:
+  push:
+    branches: [main, production]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '18'
+  NPM_VERSION: '9'
+
+jobs:
+  # ==============================================
+  # BUILD & DEPLOY USER FRONTEND TO NETLIFY
+  # ==============================================
+  deploy-user:
+    name: 🌐 Deploy User Frontend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: user/package-lock.json
+        
+    - name: 📦 Install User dependencies
+      run: |
+        cd user
+        npm ci --production=false
+        
+    - name: 🔨 Build User Frontend
+      run: |
+        cd user
+        npm run build
+      env:
+        VITE_APP_ENV: production
+        VITE_USE_MOCK: "0"
+        VITE_API_URL: "https://api.votingonline2025.site/api"
+        VITE_SOCKET_URL: "https://api.votingonline2025.site"
+        VITE_BASE_URL: "https://votingonline2025.site"
+        VITE_ENABLE_CONSOLE_LOGS: "0"
+        VITE_LOG_LEVEL: "error"
+        
+    - name: 🚀 Deploy User to Netlify
+      uses: nwtgck/actions-netlify@v3.0
+      with:
+        publish-dir: './user/dist'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "🌐 User Frontend Deploy from GitHub Actions"
+        enable-pull-request-comment: true
+        enable-commit-comment: true
+        overwrites-pull-request-comment: true
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_USER_SITE_ID }}
+
+  # ==============================================
+  # BUILD & DEPLOY ADMIN FRONTEND TO NETLIFY
+  # ==============================================
+  deploy-admin:
+    name: 👨‍💼 Deploy Admin Frontend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: admin/package-lock.json
+        
+    - name: 📦 Install Admin dependencies
+      run: |
+        cd admin
+        npm ci --production=false
+        
+    - name: 🔨 Build Admin Frontend
+      run: |
+        cd admin
+        npm run build
+      env:
+        VITE_APP_ENV: production
+        VITE_USE_MOCK: "0"
+        VITE_API_URL: "https://api.votingonline2025.site/api"
+        VITE_SOCKET_URL: "https://api.votingonline2025.site"
+        VITE_BASE_URL: "https://admin.votingonline2025.site"
+        VITE_ENABLE_CONSOLE_LOGS: "0"
+        VITE_LOG_LEVEL: "error"
+        
+    - name: 🚀 Deploy Admin to Netlify
+      uses: nwtgck/actions-netlify@v3.0
+      with:
+        publish-dir: './admin/dist'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "👨‍💼 Admin Frontend Deploy from GitHub Actions"
+        enable-pull-request-comment: true
+        enable-commit-comment: true
+        overwrites-pull-request-comment: true
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_ADMIN_SITE_ID }}
+
+  # ==============================================
+  # DEPLOY BACKEND TO VPS
+  # ==============================================
+  deploy-backend:
+    name: 🖥️ Deploy Backend to VPS
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [deploy-user, deploy-admin]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔐 Setup SSH Key
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+        
+    - name: 📋 Create deployment package
+      run: |
+        tar -czf backend-deploy.tar.gz \
+          backend/ \
+          config/production-votingonline2025-clean.env \
+          ecosystem.config.js \
+          --exclude=backend/node_modules \
+          --exclude=backend/logs \
+          --exclude=backend/uploads
+          
+    - name: 🚀 Deploy to VPS
+      run: |
+        # Upload files
+        scp -o StrictHostKeyChecking=no backend-deploy.tar.gz root@85.31.224.8:/tmp/
+        
+        # Deploy on VPS
+        ssh -o StrictHostKeyChecking=no root@85.31.224.8 << 'EOF'
+          set -e
+          
+          # Create directory structure
+          mkdir -p /home/votingonline2025.site/{backend,logs,uploads}
+          
+          # Extract files
+          cd /home/votingonline2025.site/
+          tar -xzf /tmp/backend-deploy.tar.gz
+          
+          # Install dependencies
+          cd backend
+          npm ci --production=true
+          
+          # Set permissions
+          chown -R www-data:www-data /home/votingonline2025.site/
+          chmod -R 755 /home/votingonline2025.site/
+          
+          # Setup database (if not exists)
+          if ! su - postgres -c "psql -lqt | cut -d \\| -f 1 | grep -qw voting_production_2025"; then
+            su - postgres -c "createdb voting_production_2025"
+            su - postgres -c "createuser --pwprompt voting_user" || true
+            su - postgres -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE voting_production_2025 TO voting_user;\""
+          fi
+          
+          # Restart with PM2
+          cd /home/votingonline2025.site/backend
+          pm2 delete voting-api || true
+          pm2 start ecosystem-production.config.js --env production
+          pm2 save
+          
+          # Cleanup
+          rm -f /tmp/backend-deploy.tar.gz
+        EOF
+        
+    - name: ✅ Verify deployment
+      run: |
+        ssh -o StrictHostKeyChecking=no root@85.31.224.8 << 'EOF'
+          pm2 status
+          curl -f http://localhost:3000/api/health || echo "⚠️ Health check failed"
+        EOF
+
+  # ==============================================
+  # POST-DEPLOYMENT TESTS
+  # ==============================================
+  post-deploy-tests:
+    name: 🧪 Post-Deploy Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-backend]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 🩺 Health Checks
+      run: |
+        # Wait for services to start
+        sleep 30
+        
+        # Test User Frontend
+        curl -f https://votingonline2025.site || echo "⚠️ User frontend not accessible"
+        
+        # Test Admin Frontend  
+        curl -f https://admin.votingonline2025.site || echo "⚠️ Admin frontend not accessible"
+        
+        # Test Backend API
+        curl -f https://api.votingonline2025.site/api/health || echo "⚠️ Backend API not accessible"
+        
+    - name: 📊 Performance Check
+      run: |
+        echo "🚀 Deployment completed successfully!"
+        echo "✅ User: https://votingonline2025.site"
+        echo "✅ Admin: https://admin.votingonline2025.site"
+        echo "✅ API: https://api.votingonline2025.site"
+

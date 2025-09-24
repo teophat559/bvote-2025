@@ -1,0 +1,41 @@
+{
+  "name": "bvote-unified",
+  "version": "2.0.0",
+  "description": "BVOTE - Unified Production-Ready System",
+  "main": "backend/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:admin\" \"npm run dev:user\"",
+    "dev:backend": "cd backend && cross-env PORT=3000 nodemon server.js",
+    "dev:admin": "cd admin && npm run dev",
+    "dev:user": "cd user && npm run dev",
+    "build": "npm run build:admin && npm run build:user",
+    "build:admin": "cd admin && npm install && npm run build",
+    "build:user": "cd user && npm install && npm run build",
+    "start": "cd backend && cross-env NODE_ENV=production PORT=3001 node server.js",
+    "start:pm2": "pm2 start ecosystem.config.js",
+    "stop:pm2": "pm2 stop ecosystem.config.js",
+    "restart:pm2": "pm2 restart ecosystem.config.js",
+    "deploy": "bash scripts/deploy.sh",
+    "deploy:vps": "bash scripts/deploy-vps.sh",
+    "health": "curl http://localhost:3000/api/health",
+    "audit": "node ./scripts/audit-http.mjs",
+    "install:all": "npm install && cd backend && npm install && cd ../admin && npm install && cd ../user && npm install",
+    "clean": "rm -rf node_modules backend/node_modules admin/node_modules user/node_modules admin/dist user/dist",
+    "test": "echo 'Tests not implemented yet'",
+    "kill:3001": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$p=(Get-NetTCPConnection -LocalPort 3001 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique); if($p){ $p | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }; Write-Host 'Killed PIDs: ' ($p -join ', ')} else { Write-Host 'No listeners on 3001' }\"",
+    "start:3002": "cd backend && cross-env NODE_ENV=production PORT=3002 node server.js"
+  },
+  "keywords": [ "voting", "production", "nodejs", "vue", "unified" ],
+  "author": "BVOTE Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "nodemon": "^3.0.1",
+    "cross-env": "^7.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

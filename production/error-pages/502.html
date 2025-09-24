@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>502 - Bad Gateway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffa726 0%, #ff7043 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #f8f9fa;
+        }
+
+        .error-description {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            color: #e9ecef;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .status-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .connection-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .connection-node {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 0.5rem;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .connection-ok {
+            background: rgba(40, 167, 69, 0.3);
+        }
+
+        .connection-error {
+            background: rgba(220, 53, 69, 0.3);
+            animation: pulse 1s infinite;
+        }
+
+        .connection-arrow {
+            font-size: 1.5rem;
+            margin: 0 0.5rem;
+        }
+
+        .tips-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .tips-section h3 {
+            margin-bottom: 1rem;
+            color: #f8f9fa;
+        }
+
+        .tips-section ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .tips-section li {
+            margin: 0.5rem 0;
+            position: relative;
+        }
+
+        .tips-section li:before {
+            content: "💡";
+            position: absolute;
+            left: -1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 6rem;
+            }
+
+            .error-message {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .connection-diagram {
+                flex-direction: column;
+            }
+
+            .connection-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code">502</div>
+        <div class="error-message">Bad Gateway</div>
+        <div class="error-description">
+            Máy chủ web không thể nhận được phản hồi hợp lệ từ máy chủ ứng dụng.
+            Điều này thường xảy ra khi máy chủ ứng dụng bị quá tải hoặc đang bảo trì.
+        </div>
+
+        <div class="connection-diagram">
+            <div class="connection-node connection-ok">
+                <div>🌐</div>
+                <div>Trình duyệt</div>
+            </div>
+            <div class="connection-arrow">→</div>
+            <div class="connection-node connection-ok">
+                <div>🔧</div>
+                <div>Nginx</div>
+            </div>
+            <div class="connection-arrow">→</div>
+            <div class="connection-node connection-error">
+                <div>⚡</div>
+                <div>App Server</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="retryConnection()">Thử lại</button>
+            <a href="/" class="btn btn-secondary">Trang chủ</a>
+            <button class="btn btn-secondary" onclick="checkStatus()">Kiểm tra trạng thái</button>
+        </div>
+
+        <div class="status-info">
+            <h3>📊 Thông tin kết nối:</h3>
+            <div style="margin: 1rem 0;">
+                <div>🔗 Trạng thái kết nối: <span id="connectionStatus" style="color: #ffc107;">Đang kiểm tra...</span></div>
+                <div>⏱️ Thời gian phản hồi: <span id="responseTime">N/A</span></div>
+                <div>🔄 Lần thử: <span id="retryCount">1</span></div>
+                <div>📅 Thời gian: <span id="timestamp"></span></div>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <h3>🛠️ Gợi ý khắc phục:</h3>
+            <ul>
+                <li>Chờ vài phút và thử lại - máy chủ có thể đang khôi phục</li>
+                <li>Kiểm tra kết nối mạng của bạn</li>
+                <li>Thử tải lại trang (Ctrl + F5 hoặc Cmd + Shift + R)</li>
+                <li>Nếu vấn đề tiếp tục, vui lòng liên hệ quản trị viên</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let retryCount = 1;
+
+        // Set initial values
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('vi-VN');
+        document.getElementById('retryCount').textContent = retryCount;
+
+        async function retryConnection() {
+            retryCount++;
+            document.getElementById('retryCount').textContent = retryCount;
+            document.getElementById('connectionStatus').textContent = 'Đang thử kết nối...';
+            document.getElementById('connectionStatus').style.color = '#ffc107';
+
+            const startTime = Date.now();
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+
+                const responseTime = Date.now() - startTime;
+                document.getElementById('responseTime').textContent = responseTime + 'ms';
+
+                if (response.ok) {
+                    document.getElementById('connectionStatus').textContent = 'Kết nối thành công!';
+                    document.getElementById('connectionStatus').style.color = '#28a745';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    document.getElementById('connectionStatus').textContent = 'Vẫn có lỗi';
+                    document.getElementById('connectionStatus').style.color = '#dc3545';
+                }
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                document.getElementById('responseTime').textContent = responseTime + 'ms (timeout)';
+                document.getElementById('connectionStatus').textContent = 'Không thể kết nối';
+                document.getElementById('connectionStatus').style.color = '#dc3545';
+            }
+        }
+
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Trạng thái hệ thống: ${data.status}\nDatabase: ${data.database || 'N/A'}\nUptime: ${Math.floor(data.uptime || 0)}s`);
+                } else {
+                    alert('Không thể kiểm tra trạng thái hệ thống');
+                }
+            } catch (error) {
+                alert('Lỗi khi kiểm tra trạng thái: ' + error.message);
+            }
+        }
+
+        // Auto-retry after 30 seconds
+        setTimeout(() => {
+            if (document.getElementById('connectionStatus').textContent === 'Đang kiểm tra...') {
+                retryConnection();
+            }
+        }, 30000);
+
+        // Initial connection check
+        setTimeout(retryConnection, 2000);
+    </script>
+</body>
+</html>

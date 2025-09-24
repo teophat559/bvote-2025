@@ -1,0 +1,62 @@
+[build]
+  publish = "user/dist"
+  command = "cd user && npm install && npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  VITE_APP_ENV = "production"
+  VITE_USE_MOCK = "0"
+  VITE_API_URL = "https://api.votingonline2025.site/api"
+  VITE_SOCKET_URL = "https://api.votingonline2025.site"
+  VITE_BASE_URL = "https://votingonline2025.site"
+  VITE_ENABLE_CONSOLE_LOGS = "0"
+  VITE_LOG_LEVEL = "error"
+  VITE_ENABLE_REALTIME = "1"
+  VITE_ENABLE_NOTIFICATIONS = "1"
+  VITE_ENABLE_KYC = "1"
+  VITE_ENABLE_VOTING = "1"
+  VITE_APP_NAME = "BVOTE User"
+  VITE_BUILD_VERSION = "2.0.0-production"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  command = "cd user && npm install && npm run build"
+
+[context.deploy-preview]
+  command = "cd user && npm install && npm run build"
+
+[context.branch-deploy]
+  command = "cd user && npm install && npm run build"
+
+# Security Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.votingonline2025.site wss://api.votingonline2025.site; font-src 'self' data:;"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# Cache Headers
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+

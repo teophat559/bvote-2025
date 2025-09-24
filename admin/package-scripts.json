@@ -1,0 +1,5 @@
+{
+  "deploy": "node deploy-netlify.js",
+  "deploy:preview": "netlify deploy --dir=dist",
+  "deploy:prod": "npm run build && netlify deploy --prod --dir=dist"
+}

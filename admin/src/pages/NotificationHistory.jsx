@@ -1,0 +1,18 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+
+const NotificationHistory = () => {
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="p-6 bg-slate-900/50 rounded-lg"
+        >
+            <h1 className="text-3xl font-bold text-white mb-4">Lịch Sử Thông Báo</h1>
+            <p className="text-slate-400">Trang này đang được xây dựng. Đây là nơi bạn sẽ xem lại lịch sử các thông báo đã gửi cho người dùng.</p>
+        </motion.div>
+    );
+};
+
+export default NotificationHistory;

@@ -1,0 +1,49 @@
+[build]
+  publish = "user/dist"
+  command = "cd user && npm install && npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  VITE_USE_MOCK = "1"
+  VITE_APP_ENV = "production"
+  VITE_ENABLE_CONSOLE_LOGS = "0"
+  VITE_LOG_LEVEL = "warn"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  command = "cd user && npm install && npm run build"
+
+[context.deploy-preview]
+  command = "cd user && npm install && npm run build"
+
+[context.branch-deploy]
+  command = "cd user && npm install && npm run build"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.programbvote2025.online wss://api.programbvote2025.online; font-src 'self' data:;"
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

@@ -1,0 +1,94 @@
+# 🌐 BVOTE 2025 - CYBERPANEL OPENLITESPEED CONFIG
+# Compatible with CyberPanel's OpenLiteSpeed web server
+
+RewriteEngine On
+
+# Security Headers
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set X-XSS-Protection "1; mode=block"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "no-referrer-when-downgrade"
+Header always set Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'"
+
+# CORS Headers for API
+<LocationMatch "^/api">
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+</LocationMatch>
+
+# API Proxy to Node.js Backend (Port 3000)
+RewriteCond %{REQUEST_URI} ^/api/(.*)
+RewriteRule ^api/(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
+
+# WebSocket Proxy (Port 8080)
+RewriteCond %{REQUEST_URI} ^/socket\.io/(.*)
+RewriteRule ^socket\.io/(.*)$ http://127.0.0.1:8080/socket.io/$1 [P,L]
+
+# Admin Dashboard Proxy (Port 3002)
+RewriteCond %{REQUEST_URI} ^/admin/?(.*)
+RewriteRule ^admin/?(.*)$ http://127.0.0.1:3002/$1 [P,L]
+
+# User Dashboard - Serve Static Files
+RewriteCond %{REQUEST_URI} ^/user
+RewriteRule ^user/?(.*)$ /user/index.html [L]
+
+# Default routing for Single Page App
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_URI} !^/admin/
+RewriteCond %{REQUEST_URI} !^/socket\.io/
+RewriteRule ^(.*)$ /index.html [L]
+
+# Static file caching
+<FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+    Header append Cache-Control "public, immutable"
+</FilesMatch>
+
+# Compress files for better performance
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Security - Block access to sensitive files
+<FilesMatch "\.(env|log|sql|json)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Rate limiting for API endpoints
+<LocationMatch "^/api">
+    SetEnvIfNoCase Request_Method ^(POST|PUT|DELETE)$ writeRequest
+    SetEnvIfNoCase Request_URI "/api/auth" authRequest
+
+    # Limit authentication requests
+    <RequireAll>
+        Require env !authRequest
+        Require all granted
+    </RequireAll>
+</LocationMatch>
+
+# Health check endpoint
+RewriteRule ^health/?$ - [E=health:1]
+RewriteCond %{ENV:health} =1
+RewriteRule .* - [R=200,L]
+
+# CyberPanel specific optimizations
+DirectoryIndex index.html index.php
+Options -Indexes +FollowSymLinks
+
+# Error pages
+ErrorDocument 404 /index.html
+ErrorDocument 500 "Internal Server Error - BVOTE 2025"

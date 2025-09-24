@@ -1,0 +1,63 @@
+{
+  "name": "bvote-2025-production",
+  "version": "2.0.0-production",
+  "type": "module",
+  "description": "BVOTE 2025 - Production Voting System",
+  "author": "BVOTE Development Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "node main.js",
+    "start:production": "cross-env NODE_ENV=production node main.js",
+    "test": "jest",
+    "auto-login": "node auto-login.js",
+    "session-manager": "node enhanced-login.js --single",
+    "admin-intervention": "node admin-control.js",
+    "control-system": "node main.js",
+    "admin-dashboard": "start admin.html",
+    "user-dashboard": "start user.html",
+    "production": "node prod-login.js",
+    "system-monitor": "node system-monitor.js",
+    "deploy": "node deploy.js",
+    "deploy:all": "node deploy-all.js",
+    "deploy:auto": "node deploy-all.js",
+    "health": "node health-check.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop all",
+    "pm2:restart": "pm2 restart all",
+    "pm2:logs": "pm2 logs",
+    "create-vps-package": "node create-vps-package.js",
+    "prepare-vps": "node vps-deployment-config.js",
+    "teardown": "node teardown.js",
+    "teardown:quick": "node teardown.js --quick",
+    "start-production": "node start-production.js",
+    "build-all": "cd admin && npm run build && cd ../user && npm run build",
+    "dev-all": "concurrently \"npm run start\" \"cd admin && npm run dev\" \"cd user && npm run dev\" \"cd backend && npm run dev\"",
+    "monitor:performance": "node performance-monitor.js",
+    "monitor:continuous": "node performance-monitor.js --continuous",
+    "optimize": "npm run build-all && node performance-monitor.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "chalk": "^2.4.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "jest": "^22.0.0",
+    "pg": "^8.16.3",
+    "pm2": "^5.4.3",
+    "prettier": "^1.9.2",
+    "puppeteer": "^1.20.0",
+    "rimraf": "^2.6.2",
+    "ws": "^8.18.3"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/__tests__/helpers"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^10.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}

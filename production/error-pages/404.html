@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Trang không tìm thấy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #f8f9fa;
+        }
+
+        .error-description {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            color: #e9ecef;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .search-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .helpful-links {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .helpful-links h3 {
+            margin-bottom: 1rem;
+            color: #f8f9fa;
+        }
+
+        .helpful-links ul {
+            list-style: none;
+        }
+
+        .helpful-links li {
+            margin: 0.5rem 0;
+        }
+
+        .helpful-links a {
+            color: #bee5eb;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .helpful-links a:hover {
+            color: white;
+        }
+
+        .status-info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 6rem;
+            }
+
+            .error-message {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code">404</div>
+        <div class="error-message">Oops! Trang không tìm thấy</div>
+        <div class="error-description">
+            Trang bạn đang tìm kiếm có thể đã được di chuyển, đổi tên hoặc không tồn tại.
+            Hãy kiểm tra lại URL hoặc sử dụng các liên kết bên dưới để điều hướng.
+        </div>
+
+        <div class="search-section">
+            <input type="text" class="search-input" placeholder="Tìm kiếm trang hoặc tính năng..." id="searchInput">
+            <button class="btn btn-primary" onclick="performSearch()">Tìm kiếm</button>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/" class="btn btn-primary">Về trang chủ</a>
+            <a href="/admin" class="btn btn-secondary">Quản trị</a>
+            <button class="btn btn-secondary" onclick="goBack()">Quay lại</button>
+        </div>
+
+        <div class="helpful-links">
+            <h3>Liên kết hữu ích:</h3>
+            <ul>
+                <li><a href="/">🏠 Trang chủ</a></li>
+                <li><a href="/admin">👨‍💼 Quản trị viên</a></li>
+                <li><a href="/api/health">🔍 Kiểm tra hệ thống</a></li>
+                <li><a href="mailto:support@votingonline2025.site">📧 Liên hệ hỗ trợ</a></li>
+            </ul>
+        </div>
+
+        <div class="status-info">
+            <strong>Thông tin lỗi:</strong><br>
+            Mã lỗi: 404<br>
+            Thời gian: <span id="timestamp"></span><br>
+            URL: <span id="currentUrl"></span>
+        </div>
+    </div>
+
+    <script>
+        // Set current timestamp and URL
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('vi-VN');
+        document.getElementById('currentUrl').textContent = window.location.href;
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (searchTerm) {
+                // Simple search redirect - customize based on your search implementation
+                window.location.href = `/?search=${encodeURIComponent(searchTerm)}`;
+            }
+        }
+
+        // Handle search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Auto-redirect for common typos
+        const path = window.location.pathname.toLowerCase();
+        const redirects = {
+            '/admins': '/admin',
+            '/administrator': '/admin',
+            '/login': '/admin',
+            '/dashboard': '/admin',
+            '/api': '/api/health'
+        };
+
+        if (redirects[path]) {
+            setTimeout(() => {
+                if (confirm(`Bạn có muốn chuyển hướng đến "${redirects[path]}"?`)) {
+                    window.location.href = redirects[path];
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

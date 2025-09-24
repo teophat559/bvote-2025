@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>503 - Dịch vụ không khả dụng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #9c88ff 0%, #7c3aed 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #f8f9fa;
+        }
+
+        .error-description {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            color: #e9ecef;
+            line-height: 1.6;
+        }
+
+        .maintenance-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .maintenance-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+            animation: progress 30s linear infinite;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .estimated-time {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffc107;
+            margin: 1rem 0;
+        }
+
+        .updates-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .update-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .update-item:last-child {
+            border-bottom: none;
+        }
+
+        .update-status {
+            padding: 0.2rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-complete {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-progress {
+            background: #ffc107;
+            color: black;
+        }
+
+        .status-pending {
+            background: #6c757d;
+            color: white;
+        }
+
+        .contact-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 6rem;
+            }
+
+            .error-message {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .update-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code">503</div>
+        <div class="error-message">Dịch vụ không khả dụng</div>
+        <div class="error-description">
+            Hệ thống đang được bảo trì hoặc quá tải. Chúng tôi đang làm việc để khôi phục
+            dịch vụ trong thời gian sớm nhất.
+        </div>
+
+        <div class="maintenance-info">
+            <div class="maintenance-icon">🔧</div>
+            <h3>Bảo trì hệ thống</h3>
+            <div class="estimated-time" id="estimatedTime">Ước tính: 15 phút</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p>Tiến độ hoàn thành: <span id="progressText">0%</span></p>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="checkService()">Kiểm tra dịch vụ</button>
+            <button class="btn btn-secondary" onclick="subscribeUpdates()">Nhận thông báo</button>
+            <a href="mailto:admin@votingonline2025.site" class="btn btn-secondary">Liên hệ Admin</a>
+        </div>
+
+        <div class="updates-section">
+            <h3>📋 Cập nhật bảo trì:</h3>
+            <div class="update-item">
+                <span>Sao lưu dữ liệu</span>
+                <span class="update-status status-complete">Hoàn thành</span>
+            </div>
+            <div class="update-item">
+                <span>Cập nhật phần mềm</span>
+                <span class="update-status status-progress" id="softwareUpdate">Đang thực hiện</span>
+            </div>
+            <div class="update-item">
+                <span>Kiểm tra bảo mật</span>
+                <span class="update-status status-pending">Chờ xử lý</span>
+            </div>
+            <div class="update-item">
+                <span>Khôi phục dịch vụ</span>
+                <span class="update-status status-pending">Chờ xử lý</span>
+            </div>
+        </div>
+
+        <div class="contact-section">
+            <h3>🔔 Cần hỗ trợ khẩn cấp?</h3>
+            <p>📧 Email: admin@votingonline2025.site</p>
+            <p>📱 Hotline: +84 xxx xxx xxx</p>
+            <p>⏰ Thời gian bắt đầu bảo trì: <span id="maintenanceStart"></span></p>
+            <p>🆔 Mã sự cố: <span id="incidentId"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Generate incident ID and set maintenance start time
+        const incidentId = 'MAINT-' + Date.now().toString(36).toUpperCase();
+        document.getElementById('incidentId').textContent = incidentId;
+
+        // Simulate maintenance start time (current time - 10 minutes)
+        const maintenanceStart = new Date(Date.now() - 10 * 60 * 1000);
+        document.getElementById('maintenanceStart').textContent = maintenanceStart.toLocaleString('vi-VN');
+
+        // Progress simulation
+        let currentProgress = 0;
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        function updateProgress() {
+            currentProgress = Math.min(currentProgress + Math.random() * 5, 85); // Cap at 85% for realism
+            progressFill.style.width = currentProgress + '%';
+            progressText.textContent = Math.round(currentProgress) + '%';
+
+            // Update status based on progress
+            if (currentProgress > 30) {
+                document.getElementById('softwareUpdate').textContent = 'Đang thực hiện (60%)';
+            }
+
+            if (currentProgress > 50) {
+                document.getElementById('softwareUpdate').className = 'update-status status-complete';
+                document.getElementById('softwareUpdate').textContent = 'Hoàn thành';
+            }
+        }
+
+        // Update progress every 3 seconds
+        setInterval(updateProgress, 3000);
+
+        // Update estimated time
+        function updateEstimatedTime() {
+            const minutesRemaining = Math.max(1, Math.round((100 - currentProgress) / 100 * 15));
+            document.getElementById('estimatedTime').textContent = `Ước tính: ${minutesRemaining} phút`;
+        }
+
+        setInterval(updateEstimatedTime, 5000);
+
+        async function checkService() {
+            const button = event.target;
+            const originalText = button.textContent;
+
+            button.textContent = 'Đang kiểm tra...';
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/api/health', {
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+
+                if (response.ok) {
+                    alert('🎉 Dịch vụ đã khôi phục! Đang tải lại trang...');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    alert('❌ Dịch vụ vẫn chưa sẵn sáng. Vui lòng thử lại sau.');
+                }
+            } catch (error) {
+                alert('⚠️ Không thể kiểm tra dịch vụ. Vui lòng thử lại sau.');
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function subscribeUpdates() {
+            const email = prompt('Nhập email để nhận thông báo khi dịch vụ khôi phục:');
+            if (email && email.includes('@')) {
+                // In a real application, you would send this to your backend
+                localStorage.setItem('notificationEmail', email);
+                alert('✅ Đã đăng ký nhận thông báo thành công!\nBạn sẽ được thông báo qua email khi dịch vụ khôi phục.');
+            } else if (email) {
+                alert('❌ Email không hợp lệ. Vui lòng thử lại.');
+            }
+        }
+
+        // Auto-refresh every 60 seconds to check if service is back
+        setInterval(async () => {
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+
+                if (response.ok && response.status !== 503) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                // Service still down, continue waiting
+            }
+        }, 60000);
+
+        // Log maintenance event for tracking
+        if (window.gtag) {
+            gtag('event', 'exception', {
+                'description': 'Service Unavailable 503',
+                'fatal': false,
+                'incident_id': incidentId
+            });
+        }
+    </script>
+</body>
+</html>

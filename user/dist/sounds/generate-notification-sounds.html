@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Notification Sounds</title>
+</head>
+<body>
+    <h1>Generate Notification Sounds</h1>
+    <button onclick="generateNotificationSound()">Generate notification.mp3</button>
+    <button onclick="generateSuccessSound()">Generate success.mp3</button>
+    <button onclick="generateErrorSound()">Generate error.mp3</button>
+    <button onclick="generateWarningSound()">Generate warning.mp3</button>
+
+    <script>
+        // Function to generate audio buffer from frequency
+        function generateTone(frequency, duration, volume = 0.3) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const sampleRate = audioContext.sampleRate;
+            const numSamples = sampleRate * duration;
+            const buffer = audioContext.createBuffer(1, numSamples, sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < numSamples; i++) {
+                const angle = 2 * Math.PI * frequency * i / sampleRate;
+                data[i] = Math.sin(angle) * volume * (1 - i / numSamples); // Fade out
+            }
+
+            return buffer;
+        }
+
+        // Function to download audio buffer as MP3 (simplified WAV)
+        function downloadAudioBuffer(buffer, filename) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+
+            // Create a simple WAV file
+            const length = buffer.length;
+            const arrayBuffer = new ArrayBuffer(44 + length * 2);
+            const view = new DataView(arrayBuffer);
+
+            // WAV header
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + length * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, buffer.sampleRate, true);
+            view.setUint32(28, buffer.sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, length * 2, true);
+
+            // Audio data
+            const channelData = buffer.getChannelData(0);
+            let offset = 44;
+            for (let i = 0; i < length; i++) {
+                const sample = Math.max(-1, Math.min(1, channelData[i]));
+                view.setInt16(offset, sample * 0x7FFF, true);
+                offset += 2;
+            }
+
+            // Download
+            const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateNotificationSound() {
+            const buffer = generateTone(800, 0.3, 0.3); // 800Hz, 0.3s
+            downloadAudioBuffer(buffer, 'notification.wav');
+        }
+
+        function generateSuccessSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const sampleRate = audioContext.sampleRate;
+            const duration = 0.5;
+            const numSamples = sampleRate * duration;
+            const buffer = audioContext.createBuffer(1, numSamples, sampleRate);
+            const data = buffer.getChannelData(0);
+
+            // Success sound: ascending notes
+            for (let i = 0; i < numSamples; i++) {
+                const progress = i / numSamples;
+                const frequency = 600 + (progress * 400); // 600Hz to 1000Hz
+                const angle = 2 * Math.PI * frequency * i / sampleRate;
+                data[i] = Math.sin(angle) * 0.3 * (1 - progress); // Fade out
+            }
+
+            downloadAudioBuffer(buffer, 'notification-success.wav');
+        }
+
+        function generateErrorSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const sampleRate = audioContext.sampleRate;
+            const duration = 0.4;
+            const numSamples = sampleRate * duration;
+            const buffer = audioContext.createBuffer(1, numSamples, sampleRate);
+            const data = buffer.getChannelData(0);
+
+            // Error sound: harsh buzzing
+            for (let i = 0; i < numSamples; i++) {
+                const progress = i / numSamples;
+                const frequency = 300; // Low frequency
+                const angle = 2 * Math.PI * frequency * i / sampleRate;
+                const buzz = Math.sin(angle) + 0.3 * Math.sin(angle * 3); // Add harmonics
+                data[i] = buzz * 0.3 * (1 - progress);
+            }
+
+            downloadAudioBuffer(buffer, 'notification-error.wav');
+        }
+
+        function generateWarningSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const sampleRate = audioContext.sampleRate;
+            const duration = 0.6;
+            const numSamples = sampleRate * duration;
+            const buffer = audioContext.createBuffer(1, numSamples, sampleRate);
+            const data = buffer.getChannelData(0);
+
+            // Warning sound: alternating tones
+            for (let i = 0; i < numSamples; i++) {
+                const progress = i / numSamples;
+                const freq1 = 700;
+                const freq2 = 500;
+                const frequency = Math.sin(progress * 10) > 0 ? freq1 : freq2;
+                const angle = 2 * Math.PI * frequency * i / sampleRate;
+                data[i] = Math.sin(angle) * 0.3 * (1 - progress);
+            }
+
+            downloadAudioBuffer(buffer, 'notification-warning.wav');
+        }
+    </script>
+</body>
+</html>

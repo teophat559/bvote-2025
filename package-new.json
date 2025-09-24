@@ -1,0 +1,74 @@
+{
+  "name": "bvote-2025-new-production",
+  "version": "2.0.0-new",
+  "type": "module",
+  "description": "BVOTE 2025 - Completely New Production System",
+  "author": "BVOTE Development Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "node start-production-new.js",
+    "start:new": "node start-production-new.js",
+    "health": "node health-check-new.js",
+    "monitor": "node system-monitor-new.js",
+    "setup-credentials": "node setup-new-credentials.js",
+    "verify": "node verify-standardized-config.js",
+    "deploy": "bash deploy-production-new.sh",
+    "build-all": "cd admin && npm run build && cd ../user && npm run build",
+    "dev-all": "concurrently \"npm run start\" \"cd admin && npm run dev\" \"cd user && npm run dev\"",
+    "pm2:start": "pm2 start ecosystem.production-new.config.js --env production",
+    "pm2:stop": "pm2 stop all",
+    "pm2:restart": "pm2 restart all",
+    "pm2:logs": "pm2 logs",
+    "pm2:status": "pm2 status",
+    "test": "echo \"New test suite - implement as needed\" && exit 0",
+    "clean": "rm -rf logs/* temp/* uploads/* && echo \"Temporary files cleaned\"",
+    "backup": "mkdir -p backups && cp -r config database-setup-postgresql.sql backups/",
+    "production": "npm run setup-credentials && npm run deploy"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "chalk": "^5.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.5",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
+    "uuid": "^9.0.1",
+    "winston": "^3.13.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.1.0"
+  },
+  "keywords": [
+    "bvote",
+    "voting",
+    "production",
+    "new",
+    "clean",
+    "localhost",
+    "postgresql"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://localhost/bvote/bvote-2025-new.git"
+  },
+  "config": {
+    "version": "2.0.0-new",
+    "status": "completely-new",
+    "domain": "localhost",
+    "database": "postgresql",
+    "credentials": "new-2025"
+  }
+}

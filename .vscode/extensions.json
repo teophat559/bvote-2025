@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "znck.preview",
+        "ms-vscode.live-server",
+        "msjsdiag.debugger-for-chrome",
+        "synedra.auto-run-command",
+        "formulahendry.auto-close-tag",
+        "formulahendry.auto-rename-tag",
+        "matt-rudge.auto-open-preview-panel",
+        "steoates.autoimport",
+        "redwan-hossain.auto-rename-tag-clone",
+        "rangav.vscode-thunder-client"
+    ]
+}
