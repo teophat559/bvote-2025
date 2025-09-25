@@ -24,7 +24,7 @@ timeout /t 2 >nul
 echo ✅ Admin Panel: Starting on http://localhost:5173
 echo.
 
-REM Start User Dev Server  
+REM Start User Dev Server
 echo [3/4] Starting User Interface Dev Server...
 start "User Dev Server" cmd /c "cd user && npm run dev"
 timeout /t 2 >nul
@@ -41,7 +41,7 @@ echo ========================================
 echo.
 echo 📊 Service URLs:
 echo   🔧 Admin Panel:     http://localhost:5173
-echo   👥 User Interface:  http://localhost:5174  
+echo   👥 User Interface:  http://localhost:5174
 echo   ⚡ Backend API:     http://localhost:3000
 echo   🩺 Health Check:    http://localhost:3000/health
 echo.

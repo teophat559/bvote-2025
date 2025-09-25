@@ -20,7 +20,7 @@ start-all-services.bat
 
 ### **📊 Tự động khởi chạy:**
 - ✅ **Backend API** trên `http://localhost:3000`
-- ✅ **Admin Panel** trên `http://localhost:5173`  
+- ✅ **Admin Panel** trên `http://localhost:5173`
 - ✅ **User Interface** trên `http://localhost:5174`
 
 ### **🌐 Tự động mở trình duyệt:**
@@ -95,7 +95,7 @@ bash /root/vps-deploy-complete.sh
 
 ### **Production URLs:**
 - **User**: https://votingonline2025.site
-- **Admin**: https://admin.votingonline2025.site  
+- **Admin**: https://admin.votingonline2025.site
 - **API**: https://api.votingonline2025.site
 
 ---
@@ -125,7 +125,7 @@ npm run build
 # Same for user:
 cd ../user
 rm -rf node_modules package-lock.json
-npm install  
+npm install
 npm run build
 ```
 
@@ -156,7 +156,7 @@ npm run build
 
 **BVOTE 2025 is now configured and ready for:**
 - ✅ **Local Development** - All services running
-- ✅ **Production Deployment** - VPS script ready  
+- ✅ **Production Deployment** - VPS script ready
 - ✅ **Unified Domain** - No CORS issues
 - ✅ **Professional URLs** - votingonline2025.site
 
