@@ -10,33 +10,104 @@ if %ERRORLEVEL% NEQ 0 (
     echo ❌ GitHub CLI not found!
     echo.
     echo Installing GitHub CLI...
+<<<<<<< HEAD
+<<<<<<< Updated upstream
     
+=======
+
+>>>>>>> Stashed changes
+=======
+    
+>>>>>>> origin/main
     REM Try winget first
     where winget >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
         echo 📦 Installing via winget...
+<<<<<<< HEAD
+<<<<<<< Updated upstream
         winget install --id GitHub.cli
+=======
+        winget install --id GitHub.cli --accept-package-agreements --accept-source-agreements
+        timeout /t 3 >nul
+        REM Check if installation was successful
+        where gh >nul 2>nul
+>>>>>>> Stashed changes
+=======
+        winget install --id GitHub.cli
+>>>>>>> origin/main
         if %ERRORLEVEL% EQU 0 (
             echo ✅ GitHub CLI installed successfully!
             echo Please restart this script.
             pause
             exit /b 0
+<<<<<<< HEAD
+<<<<<<< Updated upstream
         )
     )
     
+=======
+        ) else (
+            echo ⚠️ Winget installation may need time to update PATH
+        )
+    )
+
+>>>>>>> Stashed changes
+=======
+        )
+    )
+    
+>>>>>>> origin/main
     REM Try chocolatey
     where choco >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
         echo 📦 Installing via chocolatey...
         choco install gh -y
+<<<<<<< HEAD
+<<<<<<< Updated upstream
+=======
+        timeout /t 3 >nul
+        REM Refresh environment variables
+        call refreshenv >nul 2>nul
+        REM Check if installation was successful
+        where gh >nul 2>nul
+>>>>>>> Stashed changes
+=======
+>>>>>>> origin/main
         if %ERRORLEVEL% EQU 0 (
             echo ✅ GitHub CLI installed successfully!
             echo Please restart this script.
             pause
             exit /b 0
+<<<<<<< HEAD
+<<<<<<< Updated upstream
         )
     )
     
+=======
+        ) else (
+            echo ⚠️ Chocolatey installation may need terminal restart
+        )
+    )
+
+    REM Try direct download method
+    echo 📦 Trying direct download method...
+    powershell -Command "try { $url = 'https://github.com/cli/cli/releases/latest/download/gh_windows_amd64.msi'; $output = Join-Path $env:TEMP 'gh_installer.msi'; Write-Host 'Downloading GitHub CLI installer...'; Invoke-WebRequest -Uri $url -OutFile $output; Write-Host 'Installing GitHub CLI...'; Start-Process msiexec -ArgumentList '/i', $output, '/quiet', '/norestart' -Wait; Remove-Item $output -Force; Write-Host 'Installation completed. Please restart this script.'; } catch { Write-Host 'Direct download failed:' $_.Exception.Message; }"
+    timeout /t 5 >nul
+    REM Check if installation was successful after direct download
+    where gh >nul 2>nul
+    if %ERRORLEVEL% EQU 0 (
+        echo ✅ GitHub CLI installed successfully!
+        echo Please restart this script.
+        pause
+        exit /b 0
+    )
+
+>>>>>>> Stashed changes
+=======
+        )
+    )
+    
+>>>>>>> origin/main
     echo ❌ Automatic installation failed.
     echo.
     echo Manual setup required:
