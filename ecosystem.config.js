@@ -1,4 +1,4 @@
-module.exports = {
+image.pngmodule.exports = {
   apps: [
     {
       name: "auto-login-control-system",

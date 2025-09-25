@@ -367,7 +367,8 @@ class MonitoringService {
       res.end = (...args) => {
         const responseTime = Date.now() - startTime;
         this.recordRequest(req, res, responseTime);
-        logger.api(req, res, responseTime);
+        // Log API request (logger.api method not available)
+        console.log(`API ${req.method} ${req.path} - ${res.statusCode} (${responseTime}ms)`);
         originalEnd.apply(res, args);
       };
 
