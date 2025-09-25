@@ -47,15 +47,16 @@ Write-Host "Generating SSH key for GitHub Actions deployment..." -ForegroundColo
 try {
     # Generate SSH key
     ssh-keygen -t ed25519 -C "github-actions-deploy-bvote2025" -f $keyPath -N '""'
-    
+
     if ($LASTEXITCODE -ne 0) {
         throw "SSH key generation failed"
     }
-    
+
     Write-Host "✅ SSH key generated successfully!" -ForegroundColor Green
     Write-Host "• Private key: $keyPath" -ForegroundColor Gray
     Write-Host "• Public key: $pubKeyPath" -ForegroundColor Gray
-} catch {
+}
+catch {
     Write-Host "❌ Failed to generate SSH key: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }
@@ -93,7 +94,7 @@ if (-not $ghExists) {
     Write-Host "2. Add secret: SSH_PRIVATE_KEY" -ForegroundColor White
     Write-Host "3. Copy the private key content above" -ForegroundColor White
     Write-Host ""
-    
+
     Write-Host "📋 MANUAL SETUP REQUIRED:" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "1. Copy the PRIVATE KEY above" -ForegroundColor White
@@ -106,35 +107,38 @@ if (-not $ghExists) {
     Write-Host "   • SERVER_USER = $ServerUser" -ForegroundColor White
     Write-Host "   • SERVER_PASSWORD = 123123zz@" -ForegroundColor White
     Write-Host ""
-} else {
+}
+else {
     Write-Host "🔐 Adding SSH_PRIVATE_KEY to GitHub secrets..." -ForegroundColor Yellow
-    
+
     try {
         # Add SSH private key to GitHub secrets
         $privateKey | gh secret set SSH_PRIVATE_KEY --repo "$RepoOwner/$RepoName"
-        
+
         if ($LASTEXITCODE -eq 0) {
             Write-Host "✅ SSH_PRIVATE_KEY secret added successfully!" -ForegroundColor Green
-        } else {
+        }
+        else {
             throw "Failed to add SSH_PRIVATE_KEY secret"
         }
-        
+
         # Add other secrets
         Write-Host ""
         Write-Host "🔐 Adding SERVER_HOST secret..." -ForegroundColor Yellow
         Write-Output $ServerHost | gh secret set SERVER_HOST --repo "$RepoOwner/$RepoName"
-        
+
         Write-Host "🔐 Adding SERVER_USER secret..." -ForegroundColor Yellow
         Write-Output $ServerUser | gh secret set SERVER_USER --repo "$RepoOwner/$RepoName"
-        
+
         Write-Host "🔐 Adding SERVER_PASSWORD secret..." -ForegroundColor Yellow
         Write-Output "123123zz@" | gh secret set SERVER_PASSWORD --repo "$RepoOwner/$RepoName"
-        
+
         Write-Host ""
         Write-Host "🔍 Verifying GitHub secrets..." -ForegroundColor Yellow
         gh secret list --repo "$RepoOwner/$RepoName"
-        
-    } catch {
+
+    }
+    catch {
         Write-Host "❌ Failed to add GitHub secrets: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
@@ -269,23 +273,25 @@ $commit = Read-Host "📤 Commit and push the new workflow now? (y/n)"
 if ($commit -eq "y" -or $commit -eq "Y") {
     Write-Host ""
     Write-Host "📤 Committing and pushing workflow..." -ForegroundColor Yellow
-    
+
     try {
         git add .github/workflows/ssh-deploy.yml
         git commit -m "🔐 Add SSH-based deployment workflow
 
 - Add secure SSH deployment using private key
-- Remove password-based authentication  
+- Remove password-based authentication
 - Improve deployment security and reliability"
         git push origin main
-        
+
         if ($LASTEXITCODE -eq 0) {
             Write-Host "✅ Workflow pushed successfully!" -ForegroundColor Green
             Write-Host "📊 View at: https://github.com/$RepoOwner/$RepoName/actions" -ForegroundColor Cyan
-        } else {
+        }
+        else {
             throw "Failed to push workflow"
         }
-    } catch {
+    }
+    catch {
         Write-Host "❌ Failed to push workflow: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
