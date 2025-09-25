@@ -74,7 +74,7 @@ sudo npm install
 sudo npm run build
 sudo cp -r dist/* /home/votingonline2025.site/admin/
 
-# User build  
+# User build
 cd /home/votingonline2025.site/user/
 sudo npm install
 sudo npm run build
@@ -138,7 +138,7 @@ sudo tee /etc/nginx/sites-available/votingonline2025.site > /dev/null << 'EOF'
 server {
     listen 80;
     server_name votingonline2025.site www.votingonline2025.site;
-    
+
     location / {
         return 301 https://$server_name$request_uri;
     }
@@ -147,24 +147,24 @@ server {
 server {
     listen 443 ssl http2;
     server_name votingonline2025.site www.votingonline2025.site;
-    
+
     # SSL Configuration (will be updated by CyberPanel/Certbot)
     ssl_certificate /etc/letsencrypt/live/votingonline2025.site/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/votingonline2025.site/privkey.pem;
-    
+
     root /home/votingonline2025.site/public_html;
     index index.html;
-    
+
     # Security headers
     add_header X-Frame-Options DENY always;
     add_header X-Content-Type-Options nosniff always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    
+
     location / {
         try_files $uri $uri/ /index.html;
     }
-    
+
     # Static assets caching
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
         expires 1y;
@@ -172,7 +172,7 @@ server {
     }
 }
 
-# admin.votingonline2025.site - Admin Frontend  
+# admin.votingonline2025.site - Admin Frontend
 server {
     listen 80;
     server_name admin.votingonline2025.site;
@@ -182,19 +182,19 @@ server {
 server {
     listen 443 ssl http2;
     server_name admin.votingonline2025.site;
-    
+
     ssl_certificate /etc/letsencrypt/live/votingonline2025.site/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/votingonline2025.site/privkey.pem;
-    
+
     root /home/votingonline2025.site/admin;
     index index.html;
-    
+
     # Security headers
     add_header X-Frame-Options DENY always;
     add_header X-Content-Type-Options nosniff always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    
+
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -210,10 +210,10 @@ server {
 server {
     listen 443 ssl http2;
     server_name api.votingonline2025.site;
-    
+
     ssl_certificate /etc/letsencrypt/live/votingonline2025.site/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/votingonline2025.site/privkey.pem;
-    
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -224,13 +224,13 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
-        
+
         # Timeouts
         proxy_connect_timeout 300s;
         proxy_send_timeout 300s;
         proxy_read_timeout 300s;
     }
-    
+
     # WebSocket support
     location /socket.io/ {
         proxy_pass http://localhost:3000;
@@ -346,7 +346,7 @@ echo "==============================================="
 echo ""
 echo "🌐 Your sites are now live at:"
 echo "   👥 User Interface: https://votingonline2025.site"
-echo "   🔧 Admin Panel: https://admin.votingonline2025.site"  
+echo "   🔧 Admin Panel: https://admin.votingonline2025.site"
 echo "   ⚡ Backend API: https://api.votingonline2025.site"
 echo ""
 echo "📊 System Status:"

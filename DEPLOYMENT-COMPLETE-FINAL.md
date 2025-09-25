@@ -91,7 +91,7 @@ bash /root/vps-deploy-complete.sh
 # Admin Panel
 cd admin && netlify deploy --prod --dir=dist
 
-# User Interface  
+# User Interface
 cd user && netlify deploy --prod --dir=dist
 
 # Backend restart
@@ -168,7 +168,7 @@ netlify status
 **🎉 BVOTE 2025 đã được triển khai hoàn chỉnh và sẵn sàng sử dụng!**
 
 - ✅ **Frontend**: Live trên Netlify với HTTPS và CDN
-- ✅ **Backend**: Chạy ổn định với health monitoring  
+- ✅ **Backend**: Chạy ổn định với health monitoring
 - ✅ **Database**: Cấu hình sẵn sàng cho production
 - ✅ **VPS**: Script deployment hoàn chỉnh đã chuẩn bị
 - ✅ **Documentation**: Hướng dẫn đầy đủ cho vận hành
@@ -177,6 +177,6 @@ netlify status
 
 ---
 
-*Deployment completed: September 25, 2025*  
-*Status: ✅ PRODUCTION READY & LIVE*  
+*Deployment completed: September 25, 2025*
+*Status: ✅ PRODUCTION READY & LIVE*
 *Total deployment time: ~45 minutes*

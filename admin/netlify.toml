@@ -1,6 +1,6 @@
 [build]
-  publish = "admin/dist"
-  command = "cd admin && npm install && npm run build"
+  publish = "dist"
+  command = "npm install && npm run build"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -23,13 +23,13 @@
   status = 200
 
 [context.production]
-  command = "cd admin && npm install && npm run build"
+  command = "npm install && npm run build"
 
 [context.deploy-preview]
-  command = "cd admin && npm install && npm run build"
+  command = "npm install && npm run build"
 
 [context.branch-deploy]
-  command = "cd admin && npm install && npm run build"
+  command = "npm install && npm run build"
 
 # Security Headers
 [[headers]]
