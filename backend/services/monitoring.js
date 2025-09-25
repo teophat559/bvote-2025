@@ -1,5 +1,5 @@
 import os from "os";
-import logger from "./logger.js";
+// import logger from "./logger.js"; // Replaced with console logging
 
 /**
  * Performance and System Monitoring Service
@@ -107,17 +107,17 @@ class MonitoringService {
   // Security Monitoring
   recordFailedLogin(ip, username) {
     this.metrics.security.failed_logins++;
-    logger.security("Failed login attempt", { ip, username });
+    console.log("🔒 Failed login attempt", { ip, username });
   }
 
   recordBlockedIP(ip, reason) {
     this.metrics.security.blocked_ips++;
-    logger.security("IP blocked", { ip, reason });
+    console.log("🚫 IP blocked", { ip, reason });
   }
 
   recordRateLimitHit(ip, endpoint) {
     this.metrics.security.rate_limit_hits++;
-    logger.security("Rate limit hit", { ip, endpoint });
+    console.log("⚠️ Rate limit hit", { ip, endpoint });
   }
 
   // System Metrics Collection
@@ -222,7 +222,7 @@ class MonitoringService {
   checkAlerts(endpoint, responseTime, statusCode) {
     // Slow response alert
     if (responseTime > this.alertThresholds.response_time) {
-      logger.warn("Slow API response detected", {
+      console.warn("🐌 Slow API response detected", {
         endpoint,
         responseTime,
         threshold: this.alertThresholds.response_time,
@@ -239,7 +239,7 @@ class MonitoringService {
       errorRate > this.alertThresholds.error_rate &&
       this.metrics.requests.total > 100
     ) {
-      logger.warn("High error rate detected", {
+      console.warn("🚨 High error rate detected", {
         errorRate,
         threshold: this.alertThresholds.error_rate,
         totalRequests: this.metrics.requests.total,
@@ -258,7 +258,7 @@ class MonitoringService {
       if (
         systemMetrics.memory.system.usage > this.alertThresholds.memory_usage
       ) {
-        logger.warn("High memory usage detected", {
+        console.warn("🧠 High memory usage detected", {
           usage: systemMetrics.memory.system.usage,
           threshold: this.alertThresholds.memory_usage,
           details: systemMetrics.memory,
@@ -267,14 +267,14 @@ class MonitoringService {
 
       // CPU usage alert
       if (systemMetrics.cpu.load[0] > this.alertThresholds.cpu_usage) {
-        logger.warn("High CPU usage detected", {
+        console.warn("💻 High CPU usage detected", {
           load: systemMetrics.cpu.load,
           threshold: this.alertThresholds.cpu_usage,
         });
       }
 
       // Log system metrics
-      logger.info("System metrics collected", {
+      console.log("📊 System metrics collected", {
         type: "system_metrics",
         ...systemMetrics,
       });
@@ -286,7 +286,7 @@ class MonitoringService {
       this.metrics.performance.slow_requests = 0;
       this.metrics.database.query_times = [];
 
-      logger.info("Performance counters reset");
+      console.log("🔄 Performance counters reset");
     }, 3600000);
   }
 
@@ -368,7 +368,9 @@ class MonitoringService {
         const responseTime = Date.now() - startTime;
         this.recordRequest(req, res, responseTime);
         // Log API request (logger.api method not available)
-        console.log(`API ${req.method} ${req.path} - ${res.statusCode} (${responseTime}ms)`);
+        console.log(
+          `API ${req.method} ${req.path} - ${res.statusCode} (${responseTime}ms)`
+        );
         originalEnd.apply(res, args);
       };
 
