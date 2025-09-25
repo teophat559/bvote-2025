@@ -260,4 +260,13 @@ echo • Backend: http://localhost:5000
 echo • Admin: http://localhost:3000
 echo.
 
+REM Ask about SSH deployment setup
+set /p ssh_setup="🔐 Setup SSH deployment for enhanced security? (y/n): "
+if /i "%ssh_setup%"=="y" (
+    echo.
+    echo 🔐 Starting SSH deployment setup...
+    call setup-ssh-deployment.bat
+)
+
+echo.
 pause
