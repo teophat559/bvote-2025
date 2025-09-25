@@ -12,7 +12,7 @@ import db from "./database.js";
 import { setupMigrations, DatabaseOptimizer } from "./migrations.js";
 import logger from "./services/logger.js";
 import monitoring from "./services/monitoring.js";
-import { setupSecurity } from "./middleware/security.js";
+import securityMiddleware from "./middleware/security.js";
 import { validateInput, commonSchemas } from "./middleware/validation.js";
 // Chrome automation routes will be registered dynamically after optional modules load
 
@@ -557,7 +557,9 @@ const app = express();
 const server = createServer(app);
 
 // Setup security middleware
-setupSecurity(app);
+app.use(securityMiddleware.securityHeaders);
+app.use(securityMiddleware.strictRateLimit);
+app.use(securityMiddleware.slowDownMiddleware);
 
 // Add monitoring middleware
 app.use(monitoring.middleware());

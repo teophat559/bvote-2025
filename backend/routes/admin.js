@@ -345,7 +345,7 @@ router.get(
     query("category").optional().isIn(["automation", "manual", "all"]),
     query("search").optional().isString(),
   ],
-  (req, res) => {
+  async (req, res) => {
     try {
       // Check validation errors
       const errors = validationResult(req);
@@ -533,7 +533,7 @@ router.get(
     query("dateFrom").optional().isISO8601(),
     query("dateTo").optional().isISO8601(),
   ],
-  (req, res) => {
+  async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -638,7 +638,7 @@ router.delete(
     query("confirm").equals("true").withMessage("Confirmation required"),
     query("olderThan").optional().isISO8601(),
   ],
-  (req, res) => {
+  async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
