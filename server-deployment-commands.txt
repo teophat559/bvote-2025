@@ -1,0 +1,141 @@
+# BVOTE 2025 - Server Deployment Commands
+# Copy and paste these commands one by one on your server
+
+# ================================
+# METHOD 1: AUTO DEPLOYMENT SCRIPT
+# ================================
+
+# Download and run auto deployment script
+wget https://raw.githubusercontent.com/teophat559/bvote-2025/main/auto-deploy-server.sh
+chmod +x auto-deploy-server.sh
+sudo ./auto-deploy-server.sh
+
+# ================================
+# METHOD 2: MANUAL STEP BY STEP
+# ================================
+
+# Step 1: Navigate to web directory
+cd /home/votingonline2025.site/public_html/
+
+# Step 2: Clone repository
+git clone https://github.com/teophat559/bvote-2025.git temp
+cp -r temp/backend/ ./backend/
+rm -rf temp/
+
+# Step 3: Go to backend directory
+cd backend/
+
+# Step 4: Install dependencies
+npm install --production
+
+# Step 5: Create environment file
+cat > .env << 'EOF'
+NODE_ENV=production
+PORT=3000
+TELEGRAM_BOT_TOKEN=7001751139:AAFCC83DPRn1larWNjd_ms9xvY9rl0KJlGE
+TELEGRAM_CHAT_ID=6936181519
+ENABLE_TELEGRAM_NOTIFICATIONS=true
+CORS_ORIGIN=https://votingonline2025.site,https://admin.votingonline2025.site
+CORS_CREDENTIALS=true
+EOF
+
+# Step 6: Start server with PM2
+pm2 start server.js --name bvote-backend
+pm2 startup
+pm2 save
+
+# ================================
+# METHOD 3: QUICK ONE-LINER
+# ================================
+
+cd /home/votingonline2025.site/public_html/ && git clone https://github.com/teophat559/bvote-2025.git temp && cp -r temp/backend/ ./backend/ && rm -rf temp/ && cd backend/ && npm install --production && echo 'NODE_ENV=production
+PORT=3000
+TELEGRAM_BOT_TOKEN=7001751139:AAFCC83DPRn1larWNjd_ms9xvY9rl0KJlGE
+TELEGRAM_CHAT_ID=6936181519
+ENABLE_TELEGRAM_NOTIFICATIONS=true
+CORS_ORIGIN=https://votingonline2025.site,https://admin.votingonline2025.site
+CORS_CREDENTIALS=true' > .env && pm2 start server.js --name bvote-backend
+
+# ================================
+# VERIFICATION COMMANDS
+# ================================
+
+# Check if server is running
+pm2 status
+pm2 logs bvote-backend
+
+# Test API
+curl http://localhost:3000/health
+
+# Check listening ports
+netstat -tulpn | grep :3000
+
+# ================================
+# TROUBLESHOOTING COMMANDS
+# ================================
+
+# If npm install fails
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install --production
+
+# If PM2 fails
+killall node
+pm2 kill
+pm2 start server.js --name bvote-backend
+
+# Manual start (if PM2 doesn't work)
+nohup node server.js > server.log 2>&1 &
+
+# Check logs
+tail -f server.log
+tail -f /var/log/nginx/error.log
+
+# ================================
+# NGINX CONFIGURATION (if needed)
+# ================================
+
+# Create nginx config for API
+sudo nano /etc/nginx/sites-available/api.votingonline2025.site
+
+# Add this content:
+server {
+    listen 80;
+    server_name api.votingonline2025.site;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# Enable site and restart nginx
+sudo ln -s /etc/nginx/sites-available/api.votingonline2025.site /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+
+# ================================
+# SSL CERTIFICATE (Optional)
+# ================================
+
+# Install certbot
+sudo apt install certbot python3-certbot-nginx
+
+# Get SSL certificate
+sudo certbot --nginx -d api.votingonline2025.site
+
+# ================================
+# FINAL VERIFICATION
+# ================================
+
+# Test all endpoints
+curl https://api.votingonline2025.site/health
+curl https://admin.votingonline2025.site
+curl https://votingonline2025.site
