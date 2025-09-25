@@ -265,12 +265,12 @@ cat > /etc/nginx/sites-available/$API_DOMAIN << EOF
 server {
     listen 80;
     server_name $API_DOMAIN;
-    
+
     # Security headers
     add_header X-Frame-Options DENY;
     add_header X-Content-Type-Options nosniff;
     add_header X-XSS-Protection "1; mode=block";
-    
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -285,7 +285,7 @@ server {
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
     }
-    
+
     # Health check endpoint
     location /health {
         proxy_pass http://localhost:3000/health;
@@ -299,7 +299,7 @@ cat > /etc/nginx/sites-available/$ADMIN_DOMAIN << EOF
 server {
     listen 80;
     server_name $ADMIN_DOMAIN;
-    
+
     # Redirect to Netlify admin panel
     return 301 https://admin-bvote-2025.netlify.app\$request_uri;
 }
@@ -310,7 +310,7 @@ cat > /etc/nginx/sites-available/$DOMAIN << EOF
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
-    
+
     # Redirect to Netlify user interface
     return 301 https://user-bvote-2025.netlify.app\$request_uri;
 }

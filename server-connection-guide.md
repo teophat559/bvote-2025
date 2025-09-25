@@ -57,7 +57,7 @@ The script will automatically:
 
 ### **🔗 Your Live URLs:**
 - **Main Site**: https://votingonline2025.site
-- **Admin Panel**: https://admin.votingonline2025.site  
+- **Admin Panel**: https://admin.votingonline2025.site
 - **API Backend**: https://api.votingonline2025.site
 - **Health Check**: https://api.votingonline2025.site/health
 
@@ -180,7 +180,7 @@ certbot --nginx -d api.votingonline2025.site -d admin.votingonline2025.site -d v
 3. **Nginx** configured with SSL certificates
 4. **Domain routing** working correctly:
    - Main site → Netlify user interface
-   - Admin → Netlify admin panel  
+   - Admin → Netlify admin panel
    - API → Your server backend
 5. **Health checks** responding
 6. **Telegram notifications** active

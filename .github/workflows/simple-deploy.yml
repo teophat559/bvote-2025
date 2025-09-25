@@ -1,0 +1,50 @@
+name: Simple Deploy to votingonline2025.site
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Install sshpass
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+        
+    - name: Deploy to server using password
+      env:
+        SERVER_IP: "85.31.224.8"
+        SERVER_USER: "root"
+        SERVER_PASS: ${{ secrets.SERVER_PASSWORD }}
+      run: |
+        # Add server to known hosts
+        ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+        
+        # Deploy using sshpass
+        sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP '
+          cd /home/votingonline2025.site/public_html &&
+          wget -O deploy-latest.sh https://raw.githubusercontent.com/teophat559/bvote-2025/main/deploy-votingonline2025.sh &&
+          chmod +x deploy-latest.sh &&
+          ./deploy-latest.sh
+        '
+        
+    - name: Verify deployment
+      env:
+        SERVER_IP: "85.31.224.8"
+        SERVER_USER: "root"
+        SERVER_PASS: ${{ secrets.SERVER_PASSWORD }}
+      run: |
+        # Check if deployment was successful
+        sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP '
+          pm2 status | grep bvote-backend &&
+          curl -s http://localhost:3000/health | grep -q "ok" &&
+          echo "✅ Deployment successful!" ||
+          echo "❌ Deployment verification failed"
+        '

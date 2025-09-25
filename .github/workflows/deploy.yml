@@ -1,0 +1,31 @@
+name: Deploy BVOTE 2025 to Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+    - name: Add server to known hosts
+      run: |
+        ssh-keyscan -H 85.31.224.8 >> ~/.ssh/known_hosts
+        
+    - name: Deploy to server
+      run: |
+        ssh root@85.31.224.8 'wget https://raw.githubusercontent.com/teophat559/bvote-2025/main/deploy-votingonline2025.sh -O deploy.sh && chmod +x deploy.sh && ./deploy.sh'
+        
+    - name: Verify deployment
+      run: |
+        ssh root@85.31.224.8 'pm2 status && curl -s http://localhost:3000/health || echo "Health check failed"'
