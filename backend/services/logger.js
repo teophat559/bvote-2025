@@ -36,7 +36,7 @@ class RealTimeLogger {
       console.log(`New socket connection: ${socket.id}`);
 
       // Admin enables real-time logging
-      socket.on("admin:realtime:enable", (data) => {
+      socket.on("admin:realtime:enable", async (data) => {
         console.log(`Admin ${socket.id} enabled real-time logging`);
 
         this.adminClients.set(socket.id, {
@@ -109,7 +109,7 @@ class RealTimeLogger {
   }
 
   // Log operation with real-time broadcast
-  logOperation(operation) {
+  async logOperation(operation) {
     try {
       const logEntry = {
         platform: operation.platform,
