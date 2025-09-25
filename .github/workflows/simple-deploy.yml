@@ -8,16 +8,16 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      
+
     - name: Install sshpass
       run: |
         sudo apt-get update
         sudo apt-get install -y sshpass
-        
+
     - name: Deploy to server using password
       env:
         SERVER_IP: "85.31.224.8"
@@ -26,7 +26,7 @@ jobs:
       run: |
         # Add server to known hosts
         ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
-        
+
         # Deploy using sshpass
         sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP '
           cd /home/votingonline2025.site/public_html &&
@@ -34,7 +34,7 @@ jobs:
           chmod +x deploy-latest.sh &&
           ./deploy-latest.sh
         '
-        
+
     - name: Verify deployment
       env:
         SERVER_IP: "85.31.224.8"
