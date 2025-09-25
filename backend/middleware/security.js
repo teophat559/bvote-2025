@@ -47,10 +47,11 @@ export const strictRateLimit = createRateLimiter({
 export const slowDownMiddleware = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 50, // allow 50 requests per windowMs without delay
-  delayMs: 500, // add 500ms delay per request after delayAfter
+  delayMs: () => 500, // Fixed for express-slow-down v2 compatibility
   maxDelayMs: 20000, // max 20 second delay
   skipFailedRequests: false,
   skipSuccessfulRequests: false,
+  validate: { delayMs: false }, // Disable warning message
 });
 
 // IP-based security checks
