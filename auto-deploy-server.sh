@@ -203,7 +203,7 @@ if npm install --production; then
 else
     print_error "Failed to install dependencies"
     print_info "Trying alternative installation..."
-    
+
     # Try installing individual packages
     npm install express cors helmet morgan compression express-rate-limit express-slow-down bcrypt jsonwebtoken dotenv winston socket.io pg sqlite3 multer express-validator validator --production
 fi
