@@ -6,7 +6,7 @@
 ```
 votingonline2025.site (Root Domain)
 ├── https://votingonline2025.site          → User Interface
-├── https://admin.votingonline2025.site    → Admin Panel  
+├── https://admin.votingonline2025.site    → Admin Panel
 └── https://api.votingonline2025.site      → Backend API
 ```
 
