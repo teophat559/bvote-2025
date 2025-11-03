@@ -238,8 +238,9 @@ async function performFacebookLogin(accountId, email, password, proxyId) {
     await logAction(accountId, "🔐 Đang xử lý đăng nhập...", "info");
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Simulate checkpoint detection (30% chance)
-    const hasCheckpoint = Math.random() > 0.7;
+    // Simulate checkpoint detection (configurable via env)
+    const checkpointRate = parseFloat(process.env.FACEBOOK_CHECKPOINT_RATE || '0.3');
+    const hasCheckpoint = Math.random() < checkpointRate;
 
     if (hasCheckpoint) {
       await logAction(accountId, "🔍 Phát hiện checkpoint...", "warning");

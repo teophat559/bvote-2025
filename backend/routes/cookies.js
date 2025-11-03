@@ -127,8 +127,9 @@ router.post("/test", async (req, res) => {
     }
 
     // In production, you'd test the cookie against Facebook
-    // For now, simulate a test
-    const isValid = Math.random() > 0.2; // 80% chance of being valid
+    // For now, mock test always returns valid (can be overridden with env)
+    const mockValidityRate = parseFloat(process.env.MOCK_COOKIE_VALIDITY_RATE || '1.0');
+    const isValid = Math.random() < mockValidityRate;
 
     res.json({
       success: true,
