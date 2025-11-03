@@ -427,6 +427,24 @@ class DatabaseManager {
     }
   }
 
+  async execute(sql, params = []) {
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+
+    if (!this.pool) {
+      // Mock database fallback
+      return this.mockQuery(sql, params);
+    }
+
+    try {
+      return await this.pool.execute(sql, params);
+    } catch (error) {
+      console.error("Database execute error:", error);
+      throw error;
+    }
+  }
+
   // Access History Methods
   async getAccessHistory(filters = {}) {
     if (!this.pool) {
@@ -807,6 +825,9 @@ class DatabaseManager {
       ],
       votes: [],
       sessions: [],
+      proxies: [],
+      facebook_accounts: [],
+      login_logs: [],
       access_history: [
         {
           id: 1,
@@ -905,6 +926,23 @@ class DatabaseManager {
 
     if (sql.includes("SELECT") && sql.includes("contests")) {
       return [this.mockData.contests];
+    }
+
+    if (sql.includes("SELECT") && sql.includes("proxies")) {
+      return [this.mockData.proxies];
+    }
+
+    if (sql.includes("SELECT") && sql.includes("facebook_accounts")) {
+      return [this.mockData.facebook_accounts];
+    }
+
+    if (sql.includes("SELECT") && sql.includes("login_logs")) {
+      return [this.mockData.login_logs];
+    }
+
+    if (sql.includes("INSERT") || sql.includes("UPDATE") || sql.includes("DELETE")) {
+      // Mock successful mutation
+      return [{ affectedRows: 1, insertId: Math.floor(Math.random() * 10000) }];
     }
 
     // Default empty response
