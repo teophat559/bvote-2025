@@ -183,6 +183,44 @@ class DatabaseManager {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )`,
+
+      // Proxies table for Facebook auto-login
+      `CREATE TABLE IF NOT EXISTS proxies (
+        id VARCHAR(36) PRIMARY KEY,
+        host VARCHAR(255) NOT NULL,
+        port INT NOT NULL,
+        username VARCHAR(255),
+        password VARCHAR(255),
+        is_working BOOLEAN DEFAULT false,
+        last_checked TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )`,
+
+      // Facebook accounts table
+      `CREATE TABLE IF NOT EXISTS facebook_accounts (
+        id VARCHAR(36) PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        password VARCHAR(255),
+        proxy_id VARCHAR(36),
+        cookie_data TEXT,
+        last_login TIMESTAMP,
+        status ENUM('pending', 'success', 'failed', 'checkpoint', 'otp_required') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (proxy_id) REFERENCES proxies(id) ON DELETE SET NULL
+      )`,
+
+      // Login logs table
+      `CREATE TABLE IF NOT EXISTS login_logs (
+        id VARCHAR(36) PRIMARY KEY,
+        account_id VARCHAR(36),
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        action VARCHAR(255) NOT NULL,
+        status ENUM('info', 'success', 'warning', 'error') DEFAULT 'info',
+        details TEXT,
+        FOREIGN KEY (account_id) REFERENCES facebook_accounts(id) ON DELETE CASCADE
+      )`,
     ];
 
     try {
