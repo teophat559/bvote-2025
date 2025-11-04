@@ -126,18 +126,63 @@ router.post("/test", async (req, res) => {
       });
     }
 
-    // In production, you'd test the cookie against Facebook
-    // For now, mock test always returns valid (can be overridden with env)
-    const mockValidityRate = parseFloat(process.env.MOCK_COOKIE_VALIDITY_RATE || '1.0');
-    const isValid = Math.random() < mockValidityRate;
-
-    res.json({
-      success: true,
-      isValid,
-      message: isValid
-        ? "Cookie is still valid"
-        : "Cookie has expired or is invalid",
-    });
+    // Test cookie by making a request to Facebook with the cookies using puppeteer
+    let browser = null;
+    try {
+      const puppeteer = await import('puppeteer-extra');
+      const StealthPlugin = (await import('puppeteer-extra-plugin-stealth')).default;
+      puppeteer.default.use(StealthPlugin());
+      
+      const cookies = JSON.parse(cookieData);
+      
+      // Launch browser
+      browser = await puppeteer.default.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+      
+      const page = await browser.newPage();
+      
+      // Set cookies
+      await page.setCookie(...cookies.cookies);
+      
+      // Navigate to Facebook
+      await page.goto('https://www.facebook.com/', {
+        waitUntil: 'networkidle2',
+        timeout: 10000
+      });
+      
+      // Check if we're logged in (not redirected to login)
+      const currentUrl = page.url();
+      const isValid = !currentUrl.includes('/login');
+      
+      await browser.close();
+      browser = null;
+      
+      res.json({
+        success: true,
+        isValid,
+        message: isValid
+          ? "Cookie is still valid"
+          : "Cookie has expired or is invalid",
+      });
+    } catch (error) {
+      if (browser) {
+        try {
+          await browser.close();
+        } catch (e) {
+          // Ignore close errors
+        }
+      }
+      
+      // If error occurs during validation, assume invalid
+      res.json({
+        success: true,
+        isValid: false,
+        message: "Cookie validation failed - likely invalid",
+        error: error.message
+      });
+    }
   } catch (error) {
     console.error("Error testing cookie:", error);
     res.status(500).json({

@@ -237,15 +237,34 @@ router.delete("/:id", async (req, res) => {
  */
 async function testProxy(proxy) {
   try {
-    // In production, you'd use a library like axios with proxy support
-    // For now, we'll simulate a check
-    // You can integrate with libraries like node-fetch with proxy support
+    // Test proxy by attempting a TCP connection
+    const net = await import('net');
     
-    // Mock implementation - always return true for development
-    // In production, implement actual proxy testing
-    return true;
+    return new Promise((resolve) => {
+      const socket = new net.Socket();
+      const timeout = 5000; // 5 second timeout
+      
+      socket.setTimeout(timeout);
+      
+      socket.on('connect', () => {
+        socket.destroy();
+        resolve(true);
+      });
+      
+      socket.on('timeout', () => {
+        socket.destroy();
+        resolve(false);
+      });
+      
+      socket.on('error', () => {
+        socket.destroy();
+        resolve(false);
+      });
+      
+      socket.connect(proxy.port, proxy.host);
+    });
   } catch (error) {
-    console.error("Proxy test failed:", error);
+    console.error("Proxy test failed:", error.message);
     return false;
   }
 }

