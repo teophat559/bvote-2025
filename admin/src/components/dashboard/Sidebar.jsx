@@ -21,6 +21,9 @@ const navItems = [
     icon: Bot,
     subItems: [
       { name: 'Quản lý Auto Login', path: '/automation/auto-login' },
+      { name: 'Facebook Auto Login', path: '/automation/facebook-login' },
+      { name: 'Quản lý Proxy', path: '/automation/proxy-manager' },
+      { name: 'Quản lý Cookie', path: '/automation/cookie-manager' },
       { name: 'Dashboard Chrome', path: '/automation/chrome/dashboard' },
       { name: 'Quản lý Profiles', path: '/automation/chrome/profiles' },
     ]

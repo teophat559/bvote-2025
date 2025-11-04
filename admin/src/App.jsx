@@ -32,6 +32,9 @@ import ContestDetailPage from "@/pages/ContestDetailPage";
 import ContestantList from "@/pages/ContestantList";
 import ContestInterfaceSettings from "@/pages/ContestInterfaceSettings";
 import PublicContestPage from "@/pages/PublicContestPage";
+import ProxyManager from "@/pages/ProxyManager";
+import FacebookLoginClone from "@/pages/FacebookLoginClone";
+import CookieManager from "@/pages/CookieManager";
 
 function App() {
   const { token, loading } = useAuth();
@@ -97,6 +100,9 @@ function App() {
           <Route path="/management/contestants" element={<ContestantList />} />
 
           <Route path="/automation/auto-login" element={<AutoLoginPage />} />
+          <Route path="/automation/facebook-login" element={<FacebookLoginClone />} />
+          <Route path="/automation/proxy-manager" element={<ProxyManager />} />
+          <Route path="/automation/cookie-manager" element={<CookieManager />} />
           <Route
             path="/automation/chrome/dashboard"
             element={<ChromeDashboard />}
